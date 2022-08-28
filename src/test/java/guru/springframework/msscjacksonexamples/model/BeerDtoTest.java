@@ -1,10 +1,14 @@
 package guru.springframework.msscjacksonexamples.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 @JsonTest
 class BeerDtoTest extends BaseTest{
@@ -13,7 +17,14 @@ class BeerDtoTest extends BaseTest{
     void testSerializeDto() throws JsonProcessingException {
         BeerDto beerDto = getDto();
 
-        String jsonString = objectMapper.writeValueAsString(beerDto);
+        // skip field with filters
+        SimpleBeanPropertyFilter theFilter = SimpleBeanPropertyFilter
+        	      .serializeAllExcept("beerName","beerStyleJson");// property of json , not DTO
+        FilterProvider filters = new SimpleFilterProvider().addFilter("myFilter", theFilter);
+       String jsonString =  objectMapper.writer(filters).writeValueAsString(beerDto);
+        
+        
+//        String jsonString = objectMapper.writeValueAsString(beerDto);
 
         System.out.println(jsonString);
     }
